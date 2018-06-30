@@ -19,7 +19,7 @@ func main() {
 			case TileWall:
 				s = "\x1b[47m  \x1b[0m"
 			case TileOutside:
-				s = "  "
+				s = "\x1b[107m  \x1b[0m"
 			case TileBox:
 				s = "\x1b[33m[]"
 			case TileChest:
