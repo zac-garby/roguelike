@@ -13,9 +13,6 @@ import (
 	"github.com/llgcode/draw2d/draw2dkit"
 )
 
-// TODO: Find a way to remove diagonal roads - they look weird when rendered to
-// a grid.
-
 var (
 	width       = 48
 	height      = 48
@@ -55,15 +52,13 @@ func DecodeImageIntoMap(img image.Image) *Map {
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
 			var (
-				tile   = 0
+				tile   = TileOutside
 				colour = img.At(x, y)
 			)
 
 			if coloursEqual(colour, color.Transparent) {
 				tile = TileOutside
-			}
-
-			if coloursEqual(colour, color.Black) {
+			} else {
 				tile = TileFloor
 			}
 
@@ -135,7 +130,7 @@ func worker() {
 
 				dist := graph[f][t]
 
-				if dist < minDist {
+				if dist >= 0 && dist < minDist {
 					minEdge = &edge{
 						from: f,
 						to:   t,
@@ -308,6 +303,13 @@ func makeGraph(points []image.Point) [][]int {
 
 			from := points[f]
 			to := points[t]
+
+			// Skip this pair if they are diagonal (i.e. not same X or Y)
+			if !(from.X == to.X || from.Y == to.Y) {
+				row = append(row, -1)
+				continue
+			}
+
 			diff := to.Sub(from)
 			row = append(row, diff.X*diff.X+diff.Y*diff.Y)
 		}
