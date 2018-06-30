@@ -67,7 +67,7 @@ func (m *Map) postprocess() {
 
 	for {
 		tx, ty := rand.Intn(m.width()), rand.Intn(m.height())
-		if m.Tiles[ty][tx] == TileFloor {
+		if m.Tiles[ty][tx] == TileFloor && m.neighbours(tx, ty, TileFloor) == 8 {
 			m.Tiles[ty][tx] = TileTrapdoor
 			break
 		}
