@@ -2,7 +2,7 @@ package main
 
 import "math/rand"
 
-const (
+var (
 	wallBoxChance  = 0.0250
 	otherBoxChance = 0.0125
 	chestChance    = 0.0200
