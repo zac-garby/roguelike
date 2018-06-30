@@ -23,7 +23,7 @@ func main() {
 			case TileBox:
 				s = "\x1b[33m[]"
 			case TileChest:
-				s = "\x1b[92m$$"
+				s = "\x1b[92m$ "
 			case TileTrapdoor:
 				s = "\x1b[94m()"
 			}
