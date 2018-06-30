@@ -46,8 +46,7 @@ func (m *Map) postprocess() {
 
 			switch t {
 			case TileOutside:
-				n := m.neighbours(x, y, TileFloor, TileBox)
-				if n > 0 {
+				if m.neighbours(x, y, TileFloor, TileBox) > 0 {
 					m.Tiles[y][x] = TileWall
 				}
 
