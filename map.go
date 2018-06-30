@@ -73,7 +73,7 @@ func (m *Map) postprocess() {
 	}
 }
 
-// neighbours gets the number of neighbours of a cell which are off a
+// neighbours gets the number of neighbours of a cell which are of a
 // certain type.
 func (m *Map) neighbours(x, y int, types ...int) int {
 	coords := [][]int{
