@@ -193,7 +193,7 @@ func initiateJobs(graph [][]int, labelled, deleted []int) {
 }
 
 // MakeMap generates a new map
-func MakeMap() *Map {
+func MakeMap(depth int) *Map {
 	rand.Seed(time.Now().UnixNano())
 
 	var (
@@ -262,6 +262,7 @@ func MakeMap() *Map {
 	gc.Fill()
 
 	m := DecodeImageIntoMap(img)
+	m.Depth = depth
 	m.Postprocess()
 	return m
 }

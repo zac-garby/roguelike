@@ -47,10 +47,10 @@ func NewPlayer(m *Map) *Player {
 
 // Move translates the player (dx, dy) units, but only if it will still
 // be in a valid position.
-func (p *Player) Move(dx, dy int, m *Map) {
+func (p *Player) Move(dx, dy int, g *Game) {
 	nx, ny := p.X+dx, p.Y+dy
 
-	switch m.At(nx, ny) {
+	switch g.Level.At(nx, ny) {
 	case TileBox, TileWall, TileOutside:
 		return
 

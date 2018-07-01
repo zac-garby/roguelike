@@ -8,10 +8,7 @@ import (
 )
 
 var (
-	level     *lib.Map
-	player    *lib.Player
-	ui        *lib.UI
-	lastMove  = time.Now()
+	game      *lib.Game
 	moveDelay = 0.08
 )
 
@@ -26,11 +23,17 @@ func main() {
 	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
 
 	lib.SpawnWorkers()
-	level = lib.MakeMap()
-	player = lib.NewPlayer(level)
-	ui = &lib.UI{
-		Player: player,
-		Level:  level,
+
+	game = &lib.Game{
+		Level:    lib.MakeMap(1),
+		LastMove: time.Now(),
+	}
+
+	game.Player = lib.NewPlayer(game.Level)
+
+	game.UI = &lib.UI{
+		Player: game.Player,
+		Level:  game.Level,
 	}
 
 	redraw()
@@ -51,29 +54,29 @@ mainloop:
 }
 
 func handleKey(key termbox.Key) {
-	if time.Now().Sub(lastMove).Seconds() > moveDelay {
+	if time.Now().Sub(game.LastMove).Seconds() > moveDelay {
 		switch key {
 		case termbox.KeyArrowLeft:
-			player.Move(-1, 0, level)
-			player.Direction = 3
+			game.Player.Move(-1, 0, game)
+			game.Player.Direction = 3
 		case termbox.KeyArrowRight:
-			player.Move(1, 0, level)
-			player.Direction = 1
+			game.Player.Move(1, 0, game)
+			game.Player.Direction = 1
 		case termbox.KeyArrowUp:
-			player.Move(0, -1, level)
-			player.Direction = 0
+			game.Player.Move(0, -1, game)
+			game.Player.Direction = 0
 		case termbox.KeyArrowDown:
-			player.Move(0, 1, level)
-			player.Direction = 2
+			game.Player.Move(0, 1, game)
+			game.Player.Direction = 2
 		}
 
-		lastMove = time.Now()
+		game.LastMove = time.Now()
 	}
 }
 
 func redraw() {
-	level.Render(2, 1)
-	player.Render(2, 1)
-	ui.Render(100, 1)
+	game.Level.Render(2, 1)
+	game.Player.Render(2, 1)
+	game.UI.Render(100, 1)
 	termbox.Flush()
 }
