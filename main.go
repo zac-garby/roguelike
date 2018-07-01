@@ -4,14 +4,15 @@ import (
 	"time"
 
 	"github.com/Zac-Garby/roguelike/lib"
-	termbox "github.com/nsf/termbox-go"
+	"github.com/nsf/termbox-go"
 )
 
 var (
 	level     *lib.Map
 	player    *lib.Player
+	ui        *lib.UI
 	lastMove  = time.Now()
-	moveDelay = 0.15
+	moveDelay = 0.08
 )
 
 func main() {
@@ -27,6 +28,10 @@ func main() {
 	lib.SpawnWorkers()
 	level = lib.MakeMap()
 	player = lib.NewPlayer(level)
+	ui = &lib.UI{
+		Player: player,
+		Level:  level,
+	}
 
 	redraw()
 
@@ -69,5 +74,6 @@ func handleKey(key termbox.Key) {
 func redraw() {
 	level.Render(2, 1)
 	player.Render(2, 1)
+	ui.Render(100, 1)
 	termbox.Flush()
 }

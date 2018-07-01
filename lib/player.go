@@ -2,12 +2,21 @@ package lib
 
 import (
 	"math/rand"
+
+	termbox "github.com/nsf/termbox-go"
 )
 
 // A Player is the user's player, and stores things such as position.
 type Player struct {
-	X, Y      int
-	Money     int
+	X, Y int
+
+	Money      int
+	Health     int
+	Experience int
+	Attack     int
+	Defense    int
+	Magic      int
+
 	Map       *Map
 	Direction int // 0: top, 1: right, 2: bottom, 3: left
 }
@@ -22,10 +31,15 @@ func NewPlayer(m *Map) *Player {
 
 		if m.At(x, y) == TileFloor {
 			return &Player{
-				X:     x,
-				Y:     y,
-				Money: 0,
-				Map:   m,
+				X:          x,
+				Y:          y,
+				Money:      0,
+				Health:     100,
+				Experience: 0,
+				Attack:     1,
+				Defense:    1,
+				Magic:      1,
+				Map:        m,
 			}
 		}
 	}
@@ -47,4 +61,18 @@ func (p *Player) Move(dx, dy int, m *Map) {
 
 	p.X = nx
 	p.Y = ny
+}
+
+// Render renders a Player to the terminal, assuming the top-left of the
+// map is at (x, y)
+func (p *Player) Render(x, y int) {
+	ch := []rune{
+		'▲',
+		'▶',
+		'▼',
+		'◀',
+	}[p.Direction]
+
+	termbox.SetCell(x+p.X*2, y+p.Y, ch, termbox.ColorCyan, termbox.ColorDefault)
+	termbox.SetCell(x+p.X*2+1, y+p.Y, ' ', termbox.ColorCyan, termbox.ColorDefault)
 }

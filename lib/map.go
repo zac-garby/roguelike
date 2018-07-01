@@ -1,6 +1,10 @@
 package lib
 
-import "math/rand"
+import (
+	"math/rand"
+
+	termbox "github.com/nsf/termbox-go"
+)
 
 var (
 	wallBoxChance  = 0.0250
@@ -111,4 +115,39 @@ func (m *Map) neighbours(x, y int, types ...int) int {
 	}
 
 	return count
+}
+
+// Render renders a Map instance to the terminal at the given
+// coordinates
+func (m *Map) Render(x, y int) {
+	for i, row := range m.Tiles {
+		for j, tile := range row {
+			var (
+				s  = "  "
+				fg = termbox.ColorDefault
+				bg = termbox.ColorDefault
+			)
+
+			switch tile {
+			case TileFloor:
+
+			case TileWall:
+				bg = 0x10
+			case TileOutside:
+				bg = termbox.ColorWhite
+			case TileBox:
+				s = "[]"
+				fg = termbox.ColorYellow | termbox.AttrBold
+			case TileChest:
+				s = "$ "
+				fg = termbox.ColorGreen | termbox.AttrBold
+			case TileTrapdoor:
+				s = "()"
+				fg = 0x0d
+			}
+
+			termbox.SetCell(x+j*2, y+i, rune(s[0]), fg, bg)
+			termbox.SetCell(x+1+j*2, y+i, rune(s[1]), fg, bg)
+		}
+	}
 }
