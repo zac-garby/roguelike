@@ -26,6 +26,11 @@ func (u *UI) Render(x, y int) {
 	writeText(x, y+7, " attack: %d", termbox.ColorCyan, bg, u.Player.Attack)
 	writeText(x, y+8, "defense: %d", termbox.ColorWhite, bg, u.Player.Defense)
 	writeText(x, y+9, "  magic: %d", termbox.ColorMagenta, bg, u.Player.Magic)
+
+	fg = 0x09
+	writeText(x, y+12, "use ESC to exit game", fg, bg)
+	writeText(x, y+13, "use SPACE to exit to menu", fg, bg)
+	writeText(x, y+14, "use ARROWS to move", fg, bg)
 }
 
 func writeText(x, y int, text string, fg, bg termbox.Attribute, args ...interface{}) {
