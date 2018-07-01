@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	wallBoxChance  = 0.0250
-	otherBoxChance = 0.0125
-	chestChance    = 0.0200
+	wallBoxChance  = 0.0350
+	otherBoxChance = 0.0000
+	chestChance    = 0.0300
 )
 
 // The set of tile types
