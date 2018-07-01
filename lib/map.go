@@ -1,4 +1,4 @@
-package main
+package lib
 
 import "math/rand"
 
@@ -29,19 +29,21 @@ type Map struct {
 	Tiles [][]int
 }
 
-func (m *Map) width() int {
+// Width returns the width of the map
+func (m *Map) Width() int {
 	return len(m.Tiles[0])
 }
 
-func (m *Map) height() int {
+// Height returns the height of the map
+func (m *Map) Height() int {
 	return len(m.Tiles)
 }
 
-// postprocess processes a Map, adding in interesting tiles such as boxes,
+// Postprocess processes a Map, adding in interesting tiles such as boxes,
 // more defined walls, etc...
-func (m *Map) postprocess() {
-	for y := 0; y < m.height(); y++ {
-		for x := 0; x < m.width(); x++ {
+func (m *Map) Postprocess() {
+	for y := 0; y < m.Height(); y++ {
+		for x := 0; x < m.Width(); x++ {
 			t := m.Tiles[y][x]
 
 			switch t {
@@ -65,7 +67,7 @@ func (m *Map) postprocess() {
 	}
 
 	for {
-		tx, ty := rand.Intn(m.width()), rand.Intn(m.height())
+		tx, ty := rand.Intn(m.Width()), rand.Intn(m.Height())
 		if m.Tiles[ty][tx] == TileFloor && m.neighbours(tx, ty, TileFloor) == 8 {
 			m.Tiles[ty][tx] = TileTrapdoor
 			break
@@ -87,7 +89,7 @@ func (m *Map) neighbours(x, y int, types ...int) int {
 	for _, coord := range coords {
 		cx, cy := coord[0], coord[1]
 
-		if cx < 0 || cy < 0 || cx >= m.width() || cy >= m.height() {
+		if cx < 0 || cy < 0 || cx >= m.Width() || cy >= m.Height() {
 			continue
 		}
 

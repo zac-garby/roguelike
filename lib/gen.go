@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"fmt"
@@ -96,7 +96,8 @@ type jobResult struct {
 	minDist int
 }
 
-func spawnWorkers() {
+// SpawnWorkers spawns a bunch of worker goroutines to speed up Prim's algorithm
+func SpawnWorkers() {
 	for i := 0; i < threadCount; i++ {
 		go worker()
 	}
@@ -192,7 +193,8 @@ func initiateJobs(graph [][]int, labelled, deleted []int) {
 	}
 }
 
-func makeMap() *Map {
+// MakeMap generates a new map
+func MakeMap() *Map {
 	rand.Seed(time.Now().UnixNano())
 
 	var (

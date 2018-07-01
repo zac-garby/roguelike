@@ -2,29 +2,31 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/Zac-Garby/roguelike/lib"
 )
 
 func main() {
-	spawnWorkers()
-	m := makeMap()
-	m.postprocess()
+	lib.SpawnWorkers()
+	m := lib.MakeMap()
+	m.Postprocess()
 
 	for _, row := range m.Tiles {
 		for _, tile := range row {
 			s := "  "
 
 			switch tile {
-			case TileFloor:
+			case lib.TileFloor:
 				s = "  "
-			case TileWall:
+			case lib.TileWall:
 				s = "\x1b[47m  \x1b[0m"
-			case TileOutside:
+			case lib.TileOutside:
 				s = "\x1b[107m  \x1b[0m"
-			case TileBox:
+			case lib.TileBox:
 				s = "\x1b[33m[]"
-			case TileChest:
+			case lib.TileChest:
 				s = "\x1b[92m$ "
-			case TileTrapdoor:
+			case lib.TileTrapdoor:
 				s = "\x1b[94m()"
 			}
 
