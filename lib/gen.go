@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -262,7 +261,9 @@ func MakeMap() *Map {
 	gc.SetFillColor(roomColour)
 	gc.Fill()
 
-	return DecodeImageIntoMap(img)
+	m := DecodeImageIntoMap(img)
+	m.Postprocess()
+	return m
 }
 
 func square(gc draw2d.PathBuilder, center image.Point, radius float64) {
@@ -336,7 +337,6 @@ func findMST(graph [][]int) [][]bool {
 	}
 
 	for len(deleted) < len(graph) {
-		fmt.Printf("processed %d/%d: (%d%%)\r", len(deleted), len(graph), int(math.Round(float64(len(deleted))/float64(len(graph))*100)))
 		min := findMinimum(graph, labelled, deleted)
 		output[min.from][min.to] = true
 		output[min.to][min.from] = true
@@ -344,8 +344,6 @@ func findMST(graph [][]int) [][]bool {
 		deleted = append(deleted, min.from)
 		labelled = append(labelled, min.from)
 	}
-
-	fmt.Println("done                          ")
 
 	return output
 }

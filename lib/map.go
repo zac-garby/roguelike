@@ -39,6 +39,16 @@ func (m *Map) Height() int {
 	return len(m.Tiles)
 }
 
+// At returns the tile type at (x, y)
+func (m *Map) At(x, y int) int {
+	return m.Tiles[y][x]
+}
+
+// Set sets the tile type at (x, y)
+func (m *Map) Set(x, y, t int) {
+	m.Tiles[y][x] = t
+}
+
 // Postprocess processes a Map, adding in interesting tiles such as boxes,
 // more defined walls, etc...
 func (m *Map) Postprocess() {

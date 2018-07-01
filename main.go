@@ -1,38 +1,69 @@
 package main
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/Zac-Garby/roguelike/lib"
+	termbox "github.com/nsf/termbox-go"
+)
+
+var (
+	level     *lib.Map
+	player    *lib.Player
+	lastMove  = time.Now()
+	moveDelay = 0.15
 )
 
 func main() {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+
+	defer termbox.Close()
+	termbox.SetOutputMode(termbox.Output256)
+	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
+
 	lib.SpawnWorkers()
-	m := lib.MakeMap()
-	m.Postprocess()
+	level = lib.MakeMap()
+	player = lib.NewPlayer(level)
 
-	for _, row := range m.Tiles {
-		for _, tile := range row {
-			s := "  "
+	redraw()
 
-			switch tile {
-			case lib.TileFloor:
-				s = "  "
-			case lib.TileWall:
-				s = "\x1b[47m  \x1b[0m"
-			case lib.TileOutside:
-				s = "\x1b[107m  \x1b[0m"
-			case lib.TileBox:
-				s = "\x1b[33m[]"
-			case lib.TileChest:
-				s = "\x1b[92m$ "
-			case lib.TileTrapdoor:
-				s = "\x1b[94m()"
+mainloop:
+	for {
+		switch evt := termbox.PollEvent(); evt.Type {
+		case termbox.EventKey:
+			if evt.Key == termbox.KeyEsc {
+				break mainloop
 			}
 
-			fmt.Print(s)
+			handleKey(evt.Key)
 		}
 
-		fmt.Println()
+		redraw()
 	}
+}
+
+func handleKey(key termbox.Key) {
+	if time.Now().Sub(lastMove).Seconds() > moveDelay {
+		switch key {
+		case termbox.KeyArrowLeft:
+			player.Move(-1, 0, level)
+		case termbox.KeyArrowRight:
+			player.Move(1, 0, level)
+		case termbox.KeyArrowUp:
+			player.Move(0, -1, level)
+		case termbox.KeyArrowDown:
+			player.Move(0, 1, level)
+		}
+
+		lastMove = time.Now()
+	}
+}
+
+func redraw() {
+	level.Render(2, 1)
+	player.Render(2, 1)
+	termbox.Flush()
 }
