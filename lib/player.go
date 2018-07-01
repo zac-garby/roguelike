@@ -6,9 +6,10 @@ import (
 
 // A Player is the user's player, and stores things such as position.
 type Player struct {
-	X, Y  int
-	Money int
-	Map   *Map
+	X, Y      int
+	Money     int
+	Map       *Map
+	Direction int // 0: top, 1: right, 2: bottom, 3: left
 }
 
 // NewPlayer creates a new player, choosing random valid coordinates.

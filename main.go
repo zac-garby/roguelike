@@ -50,12 +50,16 @@ func handleKey(key termbox.Key) {
 		switch key {
 		case termbox.KeyArrowLeft:
 			player.Move(-1, 0, level)
+			player.Direction = 3
 		case termbox.KeyArrowRight:
 			player.Move(1, 0, level)
+			player.Direction = 1
 		case termbox.KeyArrowUp:
 			player.Move(0, -1, level)
+			player.Direction = 0
 		case termbox.KeyArrowDown:
 			player.Move(0, 1, level)
+			player.Direction = 2
 		}
 
 		lastMove = time.Now()

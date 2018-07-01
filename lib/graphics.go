@@ -42,6 +42,13 @@ func (m *Map) Render(x, y int) {
 // Render renders a Player to the terminal, assuming the top-left of the
 // map is at (x, y)
 func (p *Player) Render(x, y int) {
-	termbox.SetCell(x+p.X*2, y+p.Y, '#', termbox.ColorCyan, termbox.ColorDefault)
+	ch := []rune{
+		'▲',
+		'▶',
+		'▼',
+		'◀',
+	}[p.Direction]
+
+	termbox.SetCell(x+p.X*2, y+p.Y, ch, termbox.ColorCyan, termbox.ColorDefault)
 	termbox.SetCell(x+p.X*2+1, y+p.Y, ' ', termbox.ColorCyan, termbox.ColorDefault)
 }
