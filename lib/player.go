@@ -56,6 +56,7 @@ func (p *Player) Move(dx, dy int, m *Map) {
 
 	case TileChest:
 		p.Money += rand.Intn(100) + 50
+		p.Experience += rand.Intn(10) + 5
 		p.Map.Set(nx, ny, TileFloor)
 	}
 
