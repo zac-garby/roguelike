@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	wallBoxChance  = 0.0350
-	otherBoxChance = 0.0000
-	chestChance    = 0.0300
+	wallBoxChance = 0.0350
+	chestChance   = 0.0300
+	numMerchants  = 3
 )
 
 // The set of tile types
@@ -22,6 +22,7 @@ const (
 	TileBox
 	TileChest
 	TileTrapdoor
+	TileMerchant
 )
 
 // A Map represents a level in the game.
@@ -73,8 +74,6 @@ func (m *Map) Postprocess() {
 					m.Tiles[y][x] = TileBox
 				} else if m.neighbours(x, y, TileOutside, TileWall) == 0 && r < chestChance {
 					m.Tiles[y][x] = TileChest
-				} else if r < otherBoxChance {
-					m.Tiles[y][x] = TileBox
 				}
 			}
 		}
@@ -85,6 +84,16 @@ func (m *Map) Postprocess() {
 		if m.Tiles[ty][tx] == TileFloor && m.neighbours(tx, ty, TileFloor) == 8 {
 			m.Tiles[ty][tx] = TileTrapdoor
 			break
+		}
+	}
+
+	for i := 0; i < numMerchants; i++ {
+		for {
+			tx, ty := rand.Intn(m.Width()), rand.Intn(m.Height())
+			if m.Tiles[ty][tx] == TileFloor && m.neighbours(tx, ty, TileFloor) == 8 {
+				m.Tiles[ty][tx] = TileMerchant
+				break
+			}
 		}
 	}
 }
@@ -139,11 +148,14 @@ func (m *Map) Render(x, y int) {
 				s = "[]"
 				fg = termbox.ColorYellow | termbox.AttrBold
 			case TileChest:
-				s = "$ "
+				s = "$$"
 				fg = termbox.ColorGreen | termbox.AttrBold
 			case TileTrapdoor:
 				s = "()"
 				fg = 0x0d
+			case TileMerchant:
+				s = "TT"
+				fg = termbox.ColorMagenta | termbox.AttrBold
 			}
 
 			termbox.SetCell(x+j*2, y+i, rune(s[0]), fg, bg)

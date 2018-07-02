@@ -51,7 +51,7 @@ func (p *Player) Move(dx, dy int, g *Game) {
 	nx, ny := p.X+dx, p.Y+dy
 
 	switch g.Level.At(nx, ny) {
-	case TileBox, TileWall, TileOutside:
+	case TileBox, TileWall, TileOutside, TileMerchant:
 		return
 
 	case TileTrapdoor:
