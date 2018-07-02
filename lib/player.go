@@ -55,12 +55,18 @@ func (p *Player) Move(dx, dy int, g *Game) {
 		return
 
 	case TileTrapdoor:
+		prev := g.Level
 		g.Level = MakeMap(g.Level.Depth + 1)
-		g.Player.Map = g.Level
 
-		for g.Level.At(g.Player.X, g.Player.Y) != TileFloor {
-			g.Player.X = rand.Intn(g.Level.Width())
-			g.Player.Y = rand.Intn(g.Level.Height())
+		if levelChangeConfirm(g) {
+			g.Player.Map = g.Level
+
+			for g.Level.At(g.Player.X, g.Player.Y) != TileFloor {
+				g.Player.X = rand.Intn(g.Level.Width())
+				g.Player.Y = rand.Intn(g.Level.Height())
+			}
+		} else {
+			g.Level = prev
 		}
 
 		return
@@ -87,4 +93,33 @@ func (p *Player) Render(x, y int) {
 
 	termbox.SetCell(x+p.X*2, y+p.Y, ch, termbox.ColorCyan, termbox.ColorDefault)
 	termbox.SetCell(x+p.X*2+1, y+p.Y, ' ', termbox.ColorCyan, termbox.ColorDefault)
+}
+
+func levelChangeConfirm(g *Game) bool {
+	fg, bg := termbox.ColorDefault, termbox.ColorDefault
+
+	termbox.Clear(fg, bg)
+	writeText(2, 1, "Entering level %d...", fg|termbox.AttrBold, bg, g.Level.Depth)
+	writeText(2, 3, " health: %d", termbox.ColorRed, bg, g.Player.Health)
+	writeText(2, 4, "  money: %d", termbox.ColorGreen, bg, g.Player.Money)
+	writeText(2, 5, "     xp: %d", termbox.ColorYellow, bg, g.Player.Experience)
+	writeText(2, 6, " attack: %d", termbox.ColorCyan, bg, g.Player.Attack)
+	writeText(2, 7, "defense: %d", termbox.ColorWhite, bg, g.Player.Defense)
+	writeText(2, 8, "  magic: %d", termbox.ColorMagenta, bg, g.Player.Magic)
+	writeText(2, 11, "Press RETURN to enter the next level", fg, bg)
+	writeText(2, 12, "Press ESC to stay on the current level", fg, bg)
+
+	termbox.Flush()
+
+	for evt := termbox.PollEvent(); ; {
+		if evt.Type != termbox.EventKey {
+			continue
+		}
+
+		if evt.Key == termbox.KeyEnter {
+			return true
+		} else if evt.Key == termbox.KeyEsc {
+			return false
+		}
+	}
 }
