@@ -32,8 +32,7 @@ func main() {
 	game.Player = lib.NewPlayer(game.Level)
 
 	game.UI = &lib.UI{
-		Player: game.Player,
-		Level:  game.Level,
+		Game: game,
 	}
 
 	redraw()

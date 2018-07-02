@@ -54,6 +54,17 @@ func (p *Player) Move(dx, dy int, g *Game) {
 	case TileBox, TileWall, TileOutside:
 		return
 
+	case TileTrapdoor:
+		g.Level = MakeMap(g.Level.Depth + 1)
+		g.Player.Map = g.Level
+
+		for g.Level.At(g.Player.X, g.Player.Y) != TileFloor {
+			g.Player.X = rand.Intn(g.Level.Width())
+			g.Player.Y = rand.Intn(g.Level.Height())
+		}
+
+		return
+
 	case TileChest:
 		p.Money += rand.Intn(100) + 50
 		p.Experience += rand.Intn(10) + 5
