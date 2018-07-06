@@ -74,8 +74,6 @@ func handleKey(key termbox.Key) {
 }
 
 func redraw() {
-	game.Level.Render(2, 1)
-	game.Player.Render(2, 1)
-	game.UI.Render(100, 1)
+	game.Render()
 	termbox.Flush()
 }
