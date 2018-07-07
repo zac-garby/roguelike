@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+	"os"
 	"time"
 
 	"github.com/Zac-Garby/roguelike/lib"
@@ -17,8 +19,20 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	defer termbox.Close()
+
+	lf, err := os.OpenFile("roguelike.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening log file: %v", err)
+	}
+	defer lf.Close()
+
+	log.SetOutput(lf)
+	log.Println("starting game")
+	defer func() {
+		log.Println("closing game")
+	}()
+
 	termbox.SetOutputMode(termbox.Output256)
 	termbox.SetInputMode(termbox.InputEsc | termbox.InputMouse)
 
