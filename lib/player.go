@@ -103,6 +103,32 @@ func (p *Player) Render(x, y int) {
 	termbox.SetCell(x+p.X*2+1, y+p.Y, ' ', termbox.ColorCyan, termbox.ColorDefault)
 }
 
+// Interact makes the player interact with whatever tile is in front
+func (p *Player) Interact() {
+	p.GetFacing().OnInteract(p.Game)
+}
+
+// Inspect inspects the tile in front of the player
+func (p *Player) Inspect() {
+	p.Game.UI.SetMinibuf(p.GetFacing().Description(), time.Second*4)
+}
+
+// GetFacing gets the tile which the player is looking at
+func (p *Player) GetFacing() Tile {
+	switch p.Direction {
+	case 0:
+		return p.Game.Level.At(p.X, p.Y-1)
+	case 1:
+		return p.Game.Level.At(p.X+1, p.Y)
+	case 2:
+		return p.Game.Level.At(p.X, p.Y+1)
+	case 3:
+		return p.Game.Level.At(p.X-1, p.Y)
+	default:
+		return nil
+	}
+}
+
 func levelChangeConfirm(g *Game) bool {
 	stop := make(chan bool, 1)
 

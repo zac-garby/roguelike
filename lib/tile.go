@@ -1,6 +1,8 @@
 package lib
 
 import (
+	"math/rand"
+
 	"github.com/nsf/termbox-go"
 )
 
@@ -79,41 +81,41 @@ type (
 
 // Render renders a tile to the terminal
 func (f *FloorTile) Render(x, y int) {
-	writeText(x, y, "  ", termbox.ColorDefault, termbox.ColorDefault)
+	writeText(x, y, -1, "  ", termbox.ColorDefault, termbox.ColorDefault)
 }
 
 // Render renders a tile to the terminal
 func (f *WallTile) Render(x, y int) {
-	writeText(x, y, "  ", termbox.ColorDefault, 0x10)
+	writeText(x, y, -1, "  ", termbox.ColorDefault, 0x10)
 }
 
 // Render renders a tile to the terminal
 func (f *OutsideTile) Render(x, y int) {
-	writeText(x, y, "  ", termbox.ColorDefault, termbox.ColorWhite)
+	writeText(x, y, -1, "  ", termbox.ColorDefault, termbox.ColorWhite)
 }
 
 // Render renders a tile to the terminal
 func (f *BoxTile) Render(x, y int) {
-	writeText(x, y, "▨ ", termbox.ColorYellow|termbox.AttrBold, termbox.ColorDefault)
+	writeText(x, y, -1, "▨ ", termbox.ColorYellow|termbox.AttrBold, termbox.ColorDefault)
 }
 
 // Render renders a tile to the terminal
 func (f *ChestTile) Render(x, y int) {
 	if f.Open {
-		writeText(x, y, "$ ", termbox.ColorRed|termbox.AttrBold, termbox.ColorDefault)
+		writeText(x, y, -1, "$ ", termbox.ColorRed|termbox.AttrBold, termbox.ColorDefault)
 	} else {
-		writeText(x, y, "$ ", termbox.ColorGreen|termbox.AttrBold, termbox.ColorDefault)
+		writeText(x, y, -1, "$ ", termbox.ColorGreen|termbox.AttrBold, termbox.ColorDefault)
 	}
 }
 
 // Render renders a tile to the terminal
 func (f *TrapdoorTile) Render(x, y int) {
-	writeText(x, y, "[]", 0x0d, termbox.ColorDefault)
+	writeText(x, y, -1, "[]", 0x0d, termbox.ColorDefault)
 }
 
 // Render renders a tile to the terminal
 func (f *MerchantTile) Render(x, y int) {
-	writeText(x, y, "M ", termbox.ColorMagenta|termbox.AttrBold, termbox.ColorDefault)
+	writeText(x, y, -1, "M ", termbox.ColorMagenta|termbox.AttrBold, termbox.ColorDefault)
 }
 
 // Type() definitions
@@ -206,7 +208,37 @@ func (f *BoxTile) Passable() bool { return false }
 func (f *ChestTile) Passable() bool { return false }
 
 // Passable returns true if the tile can be walked through, false otherwise
-func (f *TrapdoorTile) Passable() bool { return false }
-
-// Passable returns true if the tile can be walked through, false otherwise
 func (f *MerchantTile) Passable() bool { return false }
+
+// OnWalk() definitions
+
+// OnWalk is a callback which is fired when the tile is stepped on by the player
+func (f *TrapdoorTile) OnWalk(g *Game) {
+	prev := g.Level
+	g.Level = MakeMap(g.Level.Depth + 1)
+
+	if levelChangeConfirm(g) {
+		g.Player.Game.Level = g.Level
+
+		for g.Level.At(g.Player.X, g.Player.Y).Type() != TileFloor {
+			g.Player.X = rand.Intn(g.Level.Width())
+			g.Player.Y = rand.Intn(g.Level.Height())
+		}
+	} else {
+		g.Level = prev
+	}
+}
+
+// OnInteract() definitions
+
+// OnInteract is a callback which is fired when the tile interacted with by the player
+func (f *ChestTile) OnInteract(g *Game) {
+	if f.Open {
+		return
+	}
+
+	g.Player.Money += rand.Intn(100) + 50
+	g.Player.Experience += rand.Intn(10) + 5
+
+	f.Open = true
+}

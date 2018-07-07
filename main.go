@@ -49,7 +49,12 @@ func main() {
 		Game: game,
 	}
 
-	redraw()
+	go func() {
+		for {
+			redraw()
+			time.Sleep(time.Second)
+		}
+	}()
 
 mainloop:
 	for {
@@ -59,14 +64,21 @@ mainloop:
 				break mainloop
 			}
 
-			handleKey(evt.Key)
+			handleKey(evt.Ch, evt.Key)
 		}
 
 		redraw()
 	}
 }
 
-func handleKey(key termbox.Key) {
+func handleKey(ch rune, key termbox.Key) {
+	switch ch {
+	case 's', 'S':
+		game.Player.Interact()
+	case 'd', 'D':
+		game.Player.Inspect()
+	}
+
 	if time.Now().Sub(game.LastMove).Seconds() > moveDelay {
 		switch key {
 		case termbox.KeyArrowLeft:
@@ -88,6 +100,7 @@ func handleKey(key termbox.Key) {
 }
 
 func redraw() {
+	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	game.Render()
 	termbox.Flush()
 }
