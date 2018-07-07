@@ -78,27 +78,29 @@ func (p *Player) Render(x, y int) {
 
 // Interact makes the player interact with whatever tile is in front
 func (p *Player) Interact() {
-	p.GetFacing().OnInteract(p.Game)
+	x, y := p.GetFacing()
+	p.Game.Level.At(x, y).OnInteract(x, y, p.Game)
 }
 
 // Inspect inspects the tile in front of the player
 func (p *Player) Inspect() {
-	p.Game.UI.SetMinibuf(p.GetFacing().Description(), time.Second*4)
+	tile := p.Game.Level.At(p.GetFacing())
+	p.Game.UI.SetMinibuf(tile.Description(), time.Second*4)
 }
 
-// GetFacing gets the tile which the player is looking at
-func (p *Player) GetFacing() Tile {
+// GetFacing gets the direction which the player is looking at
+func (p *Player) GetFacing() (x, y int) {
 	switch p.Direction {
 	case 0:
-		return p.Game.Level.At(p.X, p.Y-1)
+		return p.X, p.Y - 1
 	case 1:
-		return p.Game.Level.At(p.X+1, p.Y)
+		return p.X + 1, p.Y
 	case 2:
-		return p.Game.Level.At(p.X, p.Y+1)
+		return p.X, p.Y + 1
 	case 3:
-		return p.Game.Level.At(p.X-1, p.Y)
+		return p.X - 1, p.Y
 	default:
-		return nil
+		return 0, 0
 	}
 }
 

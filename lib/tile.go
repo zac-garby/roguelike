@@ -2,6 +2,7 @@ package lib
 
 import (
 	"math/rand"
+	"time"
 
 	"github.com/nsf/termbox-go"
 )
@@ -25,16 +26,16 @@ type Tile interface {
 	Passable() bool
 	Description() string
 	OnWalk(g *Game)
-	OnInteract(g *Game)
+	OnInteract(x, y int, g *Game)
 	Type() int
 }
 
 type tileDefaults struct{}
 
-func (t *tileDefaults) Passable() bool      { return true }
-func (t *tileDefaults) Description() string { return "idk" }
-func (t *tileDefaults) OnWalk(g *Game)      {}
-func (t *tileDefaults) OnInteract(g *Game)  {}
+func (t *tileDefaults) Passable() bool               { return true }
+func (t *tileDefaults) Description() string          { return "idk" }
+func (t *tileDefaults) OnWalk(g *Game)               {}
+func (t *tileDefaults) OnInteract(x, y int, g *Game) {}
 
 type (
 	// A FloorTile is a walkable tile
@@ -231,8 +232,8 @@ func (f *TrapdoorTile) OnWalk(g *Game) {
 
 // OnInteract() definitions
 
-// OnInteract is a callback which is fired when the tile interacted with by the player
-func (f *ChestTile) OnInteract(g *Game) {
+// OnInteract is a callback which is fired when the tile is interacted with by the player
+func (f *ChestTile) OnInteract(x, y int, g *Game) {
 	if f.Open {
 		return
 	}
@@ -241,4 +242,18 @@ func (f *ChestTile) OnInteract(g *Game) {
 	g.Player.Experience += rand.Intn(10) + 5
 
 	f.Open = true
+}
+
+// OnInteract is a callback which is fired when the tile is interacted with by the player
+func (f *BoxTile) OnInteract(x, y int, g *Game) {
+	px, py := g.Player.X, g.Player.Y
+	dx, dy := x-px, y-py
+	nx, ny := x+dx, y+dy
+
+	if t := g.Level.At(nx, ny); t.Type() == TileFloor && time.Now().Sub(g.LastMove).Seconds() > 0.08 {
+		g.Level.Set(x, y, &FloorTile{})
+		g.Level.Set(nx, ny, &BoxTile{})
+		g.Player.X = x
+		g.Player.Y = y
+	}
 }

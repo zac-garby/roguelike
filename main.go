@@ -10,8 +10,7 @@ import (
 )
 
 var (
-	game      *lib.Game
-	moveDelay = 0.08
+	game *lib.Game
 )
 
 func main() {
@@ -87,7 +86,7 @@ func handleKey(ch rune, key termbox.Key) {
 		game.Player.Direction = 1
 	}
 
-	if time.Now().Sub(game.LastMove).Seconds() > moveDelay {
+	if time.Now().Sub(game.LastMove).Seconds() > 0.08 {
 		switch key {
 		case termbox.KeyArrowLeft:
 			game.Player.Move(-1, 0)
