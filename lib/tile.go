@@ -23,6 +23,7 @@ type Tile interface {
 	Passable() bool
 	Description() string
 	OnWalk(g *Game)
+	OnInteract(g *Game)
 	Type() int
 }
 
@@ -31,6 +32,7 @@ type tileDefaults struct{}
 func (t *tileDefaults) Passable() bool      { return true }
 func (t *tileDefaults) Description() string { return "idk" }
 func (t *tileDefaults) OnWalk(g *Game)      {}
+func (t *tileDefaults) OnInteract(g *Game)  {}
 
 type (
 	// A FloorTile is a walkable tile
