@@ -58,33 +58,6 @@ func (p *Player) Move(dx, dy int) {
 
 	tile.OnWalk(p.Game)
 
-	/* switch p.Game.Level.At(nx, ny).Type() {
-	case TileBox, TileWall, TileOutside, TileMerchant:
-		return
-
-	case TileTrapdoor:
-		prev := g.Level
-		g.Level = MakeMap(g.Level.Depth + 1)
-
-		if levelChangeConfirm(g) {
-			g.Player.Game.Level = g.Level
-
-			for g.Level.At(g.Player.X, g.Player.Y) != TileFloor {
-				g.Player.X = rand.Intn(g.Level.Width())
-				g.Player.Y = rand.Intn(g.Level.Height())
-			}
-		} else {
-			g.Level = prev
-		}
-
-		return
-
-	case TileChest:
-		p.Money += rand.Intn(100) + 50
-		p.Experience += rand.Intn(10) + 5
-		p.Map.Set(nx, ny, TileFloor)
-	} */
-
 	p.X = nx
 	p.Y = ny
 }
