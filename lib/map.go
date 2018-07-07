@@ -2,8 +2,6 @@ package lib
 
 import (
 	"math/rand"
-
-	termbox "github.com/nsf/termbox-go"
 )
 
 var (
@@ -12,26 +10,13 @@ var (
 	numMerchants  = 3
 )
 
-// The set of tile types
-const (
-	_ int = iota
-
-	TileFloor
-	TileWall
-	TileOutside
-	TileBox
-	TileChest
-	TileTrapdoor
-	TileMerchant
-)
-
 // A Map represents a level in the game.
 type Map struct {
 	// Depth determines the level of this map in the game.
 	Depth int
 
 	// Tiles stores the tiles in a 2d matrix.
-	Tiles [][]int
+	Tiles [][]Tile
 }
 
 // Width returns the width of the map
@@ -44,13 +29,13 @@ func (m *Map) Height() int {
 	return len(m.Tiles)
 }
 
-// At returns the tile type at (x, y)
-func (m *Map) At(x, y int) int {
+// At returns the tile at (x, y)
+func (m *Map) At(x, y int) Tile {
 	return m.Tiles[y][x]
 }
 
-// Set sets the tile type at (x, y)
-func (m *Map) Set(x, y, t int) {
+// Set sets the tile at (x, y)
+func (m *Map) Set(x, y int, t Tile) {
 	m.Tiles[y][x] = t
 }
 
@@ -59,21 +44,23 @@ func (m *Map) Set(x, y, t int) {
 func (m *Map) Postprocess() {
 	for y := 0; y < m.Height(); y++ {
 		for x := 0; x < m.Width(); x++ {
-			t := m.Tiles[y][x]
+			t := m.At(x, y)
 
-			switch t {
+			switch t.Type() {
 			case TileOutside:
 				if m.neighbours(x, y, TileFloor, TileBox) > 0 {
-					m.Tiles[y][x] = TileWall
+					m.Set(x, y, &WallTile{})
 				}
 
 			case TileFloor:
 				r := rand.Float64()
 
 				if m.neighbours(x, y, TileOutside, TileWall, TileBox) > 1 && r < wallBoxChance {
-					m.Tiles[y][x] = TileBox
+					m.Set(x, y, &BoxTile{})
 				} else if m.neighbours(x, y, TileOutside, TileWall) == 0 && r < chestChance {
-					m.Tiles[y][x] = TileChest
+					m.Set(x, y, &ChestTile{
+						Open: false,
+					})
 				}
 			}
 		}
@@ -81,8 +68,8 @@ func (m *Map) Postprocess() {
 
 	for {
 		tx, ty := rand.Intn(m.Width()), rand.Intn(m.Height())
-		if m.Tiles[ty][tx] == TileFloor && m.neighbours(tx, ty, TileFloor) == 8 {
-			m.Tiles[ty][tx] = TileTrapdoor
+		if m.At(tx, ty).Type() == TileFloor && m.neighbours(tx, ty, TileFloor) == 8 {
+			m.Set(tx, ty, &TrapdoorTile{})
 			break
 		}
 	}
@@ -90,8 +77,8 @@ func (m *Map) Postprocess() {
 	for i := 0; i < numMerchants; i++ {
 		for {
 			tx, ty := rand.Intn(m.Width()), rand.Intn(m.Height())
-			if m.Tiles[ty][tx] == TileFloor && m.neighbours(tx, ty, TileFloor) == 8 {
-				m.Tiles[ty][tx] = TileMerchant
+			if m.At(tx, ty).Type() == TileFloor && m.neighbours(tx, ty, TileFloor) == 8 {
+				m.Set(tx, ty, &MerchantTile{})
 				break
 			}
 		}
@@ -117,7 +104,7 @@ func (m *Map) neighbours(x, y int, types ...int) int {
 		}
 
 		for _, tile := range types {
-			if m.Tiles[cy][cx] == tile {
+			if m.At(cx, cy).Type() == tile {
 				count++
 			}
 		}
@@ -131,35 +118,7 @@ func (m *Map) neighbours(x, y int, types ...int) int {
 func (m *Map) Render(x, y int) {
 	for i, row := range m.Tiles {
 		for j, tile := range row {
-			var (
-				s  = "  "
-				fg = termbox.ColorDefault
-				bg = termbox.ColorDefault
-			)
-
-			switch tile {
-			case TileFloor:
-
-			case TileWall:
-				bg = 0x10
-			case TileOutside:
-				bg = termbox.ColorWhite
-			case TileBox:
-				s = "[]"
-				fg = termbox.ColorYellow | termbox.AttrBold
-			case TileChest:
-				s = "$$"
-				fg = termbox.ColorGreen | termbox.AttrBold
-			case TileTrapdoor:
-				s = "()"
-				fg = 0x0d
-			case TileMerchant:
-				s = "TT"
-				fg = termbox.ColorMagenta | termbox.AttrBold
-			}
-
-			termbox.SetCell(x+j*2, y+i, rune(s[0]), fg, bg)
-			termbox.SetCell(x+1+j*2, y+i, rune(s[1]), fg, bg)
+			tile.Render(x+j*2, y+i)
 		}
 	}
 }

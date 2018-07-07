@@ -43,7 +43,7 @@ func main() {
 		LastMove: time.Now(),
 	}
 
-	game.Player = lib.NewPlayer(game.Level)
+	game.Player = lib.NewPlayer(game)
 
 	game.UI = &lib.UI{
 		Game: game,
@@ -70,16 +70,16 @@ func handleKey(key termbox.Key) {
 	if time.Now().Sub(game.LastMove).Seconds() > moveDelay {
 		switch key {
 		case termbox.KeyArrowLeft:
-			game.Player.Move(-1, 0, game)
+			game.Player.Move(-1, 0)
 			game.Player.Direction = 3
 		case termbox.KeyArrowRight:
-			game.Player.Move(1, 0, game)
+			game.Player.Move(1, 0)
 			game.Player.Direction = 1
 		case termbox.KeyArrowUp:
-			game.Player.Move(0, -1, game)
+			game.Player.Move(0, -1)
 			game.Player.Direction = 0
 		case termbox.KeyArrowDown:
-			game.Player.Move(0, 1, game)
+			game.Player.Move(0, 1)
 			game.Player.Direction = 2
 		}
 

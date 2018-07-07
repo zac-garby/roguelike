@@ -41,27 +41,27 @@ func DecodeImageIntoMap(img image.Image) *Map {
 
 	m := &Map{
 		Depth: 0,
-		Tiles: make([][]int, h),
+		Tiles: make([][]Tile, h),
 	}
 
 	for y := 0; y < h; y++ {
-		m.Tiles[y] = make([]int, w)
+		m.Tiles[y] = make([]Tile, w)
 	}
 
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
 			var (
-				tile   = TileOutside
+				tile   Tile
 				colour = img.At(x, y)
 			)
 
 			if coloursEqual(colour, color.Transparent) {
-				tile = TileOutside
+				tile = &OutsideTile{}
 			} else {
-				tile = TileFloor
+				tile = &FloorTile{}
 			}
 
-			m.Tiles[y][x] = tile
+			m.Set(x, y, tile)
 		}
 	}
 

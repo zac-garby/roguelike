@@ -18,19 +18,19 @@ type Player struct {
 	Defense    int
 	Magic      int
 
-	Map       *Map
+	Game      *Game
 	Direction int // 0: top, 1: right, 2: bottom, 3: left
 }
 
 // NewPlayer creates a new player, choosing random valid coordinates.
-func NewPlayer(m *Map) *Player {
+func NewPlayer(g *Game) *Player {
 	for {
 		var (
-			x = rand.Intn(m.Width())
-			y = rand.Intn(m.Height())
+			x = rand.Intn(g.Level.Width())
+			y = rand.Intn(g.Level.Height())
 		)
 
-		if m.At(x, y) == TileFloor {
+		if g.Level.At(x, y).Type() == TileFloor {
 			return &Player{
 				X:          x,
 				Y:          y,
@@ -40,7 +40,7 @@ func NewPlayer(m *Map) *Player {
 				Attack:     1,
 				Defense:    1,
 				Magic:      1,
-				Map:        m,
+				Game:       g,
 			}
 		}
 	}
@@ -48,10 +48,17 @@ func NewPlayer(m *Map) *Player {
 
 // Move translates the player (dx, dy) units, but only if it will still
 // be in a valid position.
-func (p *Player) Move(dx, dy int, g *Game) {
+func (p *Player) Move(dx, dy int) {
 	nx, ny := p.X+dx, p.Y+dy
+	tile := p.Game.Level.At(nx, ny)
 
-	switch g.Level.At(nx, ny) {
+	if !tile.Passable() {
+		return
+	}
+
+	tile.OnWalk(p.Game)
+
+	/* switch p.Game.Level.At(nx, ny).Type() {
 	case TileBox, TileWall, TileOutside, TileMerchant:
 		return
 
@@ -60,7 +67,7 @@ func (p *Player) Move(dx, dy int, g *Game) {
 		g.Level = MakeMap(g.Level.Depth + 1)
 
 		if levelChangeConfirm(g) {
-			g.Player.Map = g.Level
+			g.Player.Game.Level = g.Level
 
 			for g.Level.At(g.Player.X, g.Player.Y) != TileFloor {
 				g.Player.X = rand.Intn(g.Level.Width())
@@ -76,7 +83,7 @@ func (p *Player) Move(dx, dy int, g *Game) {
 		p.Money += rand.Intn(100) + 50
 		p.Experience += rand.Intn(10) + 5
 		p.Map.Set(nx, ny, TileFloor)
-	}
+	} */
 
 	p.X = nx
 	p.Y = ny
