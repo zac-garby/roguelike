@@ -2,6 +2,7 @@ package lib
 
 import (
 	"math/rand"
+	"time"
 
 	termbox "github.com/nsf/termbox-go"
 )
@@ -96,30 +97,40 @@ func (p *Player) Render(x, y int) {
 }
 
 func levelChangeConfirm(g *Game) bool {
-	fg, bg := termbox.ColorDefault, termbox.ColorDefault
+	stop := make(chan bool, 1)
 
-	termbox.Clear(fg, bg)
-	writeText(2, 1, "Entering level %d...", fg|termbox.AttrBold, bg, g.Level.Depth)
-	writeText(2, 3, " health: %d", termbox.ColorRed, bg, g.Player.Health)
-	writeText(2, 4, "  money: %d", termbox.ColorGreen, bg, g.Player.Money)
-	writeText(2, 5, "     xp: %d", termbox.ColorYellow, bg, g.Player.Experience)
-	writeText(2, 6, " attack: %d", termbox.ColorCyan, bg, g.Player.Attack)
-	writeText(2, 7, "defense: %d", termbox.ColorWhite, bg, g.Player.Defense)
-	writeText(2, 8, "  magic: %d", termbox.ColorMagenta, bg, g.Player.Magic)
-	writeText(2, 11, "Press RETURN to enter the next level", fg, bg)
-	writeText(2, 12, "Press ESC to stay on the current level", fg, bg)
+	delayText(
+		1, 0, time.Millisecond*10,
+		`
+Entering level ^B%d^!...
 
-	termbox.Flush()
+^r health:  %d
+^g money:   %d
+^y xp:      %d
+^c attack:  %d
+^w defense: %d
+^m magic:   %d ^!
 
-	for evt := termbox.PollEvent(); ; {
-		if evt.Type != termbox.EventKey {
-			continue
-		}
+Press ^BRETURN^! to enter the next level
+Press ^BESC^! to stay on the current level`,
+		termbox.ColorDefault, termbox.ColorDefault, stop,
+		g.Level.Depth, g.Player.Health,
+		g.Player.Money, g.Player.Experience,
+		g.Player.Attack, g.Player.Defense,
+		g.Player.Magic)
 
-		if evt.Key == termbox.KeyEnter {
-			return true
-		} else if evt.Key == termbox.KeyEsc {
-			return false
+	for {
+		switch evt := termbox.PollEvent(); evt.Type {
+		case termbox.EventKey:
+			if evt.Key == termbox.KeyEnter {
+				stop <- true
+				return true
+			}
+
+			if evt.Key == termbox.KeyEsc {
+				stop <- true
+				return false
+			}
 		}
 	}
 }

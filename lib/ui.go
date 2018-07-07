@@ -2,6 +2,7 @@ package lib
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/nsf/termbox-go"
 )
@@ -32,11 +33,69 @@ func (u *UI) Render(x, y int) {
 	writeText(x, y+14, "use ARROWS to move", fg, bg)
 }
 
-func writeText(x, y int, text string, fg, bg termbox.Attribute, args ...interface{}) {
+func writeText(sx, sy int, text string, fg, bg termbox.Attribute, args ...interface{}) {
+	x := sx
+	y := sy
+
 	str := fmt.Sprintf(text, args...)
 
 	for i := 0; i < len(str); i++ {
 		ch := rune(str[i])
-		termbox.SetCell(x+i, y, ch, fg, bg)
+		if ch == '\n' {
+			x = sx
+			y++
+		} else if ch == '\t' {
+			x += 4
+			continue
+		} else if ch == '^' {
+			if i+1 >= len(str) || i+1 < 0 {
+				continue
+			}
+
+			switch str[i+1] {
+			case 'b':
+				fg = termbox.ColorBlue
+			case 'c':
+				fg = termbox.ColorCyan
+			case '!':
+				fg = termbox.ColorDefault
+			case 'g':
+				fg = termbox.ColorGreen
+			case 'm':
+				fg = termbox.ColorMagenta
+			case 'r':
+				fg = termbox.ColorRed
+			case 'w':
+				fg = termbox.ColorWhite
+			case 'y':
+				fg = termbox.ColorYellow
+			case 'B':
+				fg |= termbox.AttrBold
+			}
+
+			i++
+
+			continue
+		}
+
+		termbox.SetCell(x, y, ch, fg, bg)
+		x++
 	}
+}
+
+func delayText(x, y int, delay time.Duration, text string, fg, bg termbox.Attribute, stop chan bool, args ...interface{}) {
+	go func() {
+		str := fmt.Sprintf(text, args...)
+
+		for i := 0; i < len(str); i++ {
+			if stop != nil && len(stop) > 0 {
+				break
+			}
+
+			termbox.Clear(fg, bg)
+			writeText(x, y, str[:i+1], fg, bg)
+			termbox.Flush()
+			time.Sleep(delay)
+		}
+	}()
 }
