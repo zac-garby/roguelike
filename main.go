@@ -77,6 +77,14 @@ func handleKey(ch rune, key termbox.Key) {
 		game.Player.Interact()
 	case 'd', 'D':
 		game.Player.Inspect()
+	case 'i', 'I':
+		game.Player.Direction = 0
+	case 'j', 'J':
+		game.Player.Direction = 3
+	case 'k', 'K':
+		game.Player.Direction = 2
+	case 'l', 'L':
+		game.Player.Direction = 1
 	}
 
 	if time.Now().Sub(game.LastMove).Seconds() > moveDelay {
