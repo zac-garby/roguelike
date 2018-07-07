@@ -20,24 +20,29 @@ func (u *UI) Render(x, y int) {
 	writeText(x, y+0, "      x: %d", fg, bg, u.Game.Player.X)
 	writeText(x, y+1, "      y: %d", fg, bg, u.Game.Player.Y)
 	writeText(x, y+2, "  depth: %d", fg, bg, u.Game.Level.Depth)
-	writeText(x, y+4, " health: %d", termbox.ColorRed, bg, u.Game.Player.Health)
-	writeText(x, y+5, "  money: %d", termbox.ColorGreen, bg, u.Game.Player.Money)
-	writeText(x, y+6, "     xp: %d", termbox.ColorYellow, bg, u.Game.Player.Experience)
-	writeText(x, y+7, " attack: %d", termbox.ColorCyan, bg, u.Game.Player.Attack)
-	writeText(x, y+8, "defense: %d", termbox.ColorWhite, bg, u.Game.Player.Defense)
-	writeText(x, y+9, "  magic: %d", termbox.ColorMagenta, bg, u.Game.Player.Magic)
+	writeText(x, y+4, " health: ^r%d%%^!", fg, bg, u.Game.Player.Health)
+	writeText(x, y+5, "  money: ^g£%d^!", fg, bg, u.Game.Player.Money)
+	writeText(x, y+6, "     xp: ^y%d^!", fg, bg, u.Game.Player.Experience)
+	writeText(x, y+7, " attack: ^c%d^!", fg, bg, u.Game.Player.Attack)
+	writeText(x, y+8, "defense: ^w%d^!", fg, bg, u.Game.Player.Defense)
+	writeText(x, y+9, "  magic: ^m%d^!", fg, bg, u.Game.Player.Magic)
 
 	fg = 0x09
-	writeText(x, y+12, "use ESC to exit game", fg, bg)
-	writeText(x, y+13, "use SPACE to exit to menu", fg, bg)
-	writeText(x, y+14, "use ARROWS to move", fg, bg)
+	writeText(x, y+12, "^wESC^! to exit the game", fg, bg)
+	writeText(x, y+13, "^wQ^! to exit to the menu", fg, bg)
+	writeText(x, y+14, "^w▲▼◀▶^! to move", fg, bg)
+	writeText(x, y+15, "^wIJKL^! to turn on the spot", fg, bg)
+	writeText(x, y+16, "^wSPACE^! to shoot", fg, bg)
+	writeText(x, y+17, "^wS^! to interact with a tile", fg, bg)
+	writeText(x, y+18, "^wD^! to inspect a tile", fg, bg)
 }
 
 func writeText(sx, sy int, text string, fg, bg termbox.Attribute, args ...interface{}) {
+	dfg := fg
 	x := sx
 	y := sy
 
-	str := fmt.Sprintf(text, args...)
+	str := []rune(fmt.Sprintf(text, args...))
 
 	for i := 0; i < len(str); i++ {
 		ch := rune(str[i])
@@ -58,7 +63,7 @@ func writeText(sx, sy int, text string, fg, bg termbox.Attribute, args ...interf
 			case 'c':
 				fg = termbox.ColorCyan
 			case '!':
-				fg = termbox.ColorDefault
+				fg = dfg
 			case 'g':
 				fg = termbox.ColorGreen
 			case 'm':
