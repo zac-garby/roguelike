@@ -4,12 +4,6 @@ import (
 	"math/rand"
 )
 
-var (
-	wallBoxChance = 0.0350
-	chestChance   = 0.0300
-	numMerchants  = 3
-)
-
 // A Map represents a level in the game.
 type Map struct {
 	// Depth determines the level of this map in the game.
@@ -55,9 +49,9 @@ func (m *Map) Postprocess() {
 			case TileFloor:
 				r := rand.Float64()
 
-				if m.neighbours(x, y, TileOutside, TileWall, TileBox) > 1 && r < wallBoxChance {
+				if m.neighbours(x, y, TileOutside, TileWall, TileBox) > 1 && r < Conf.BoxChance {
 					m.Set(x, y, &BoxTile{})
-				} else if m.neighbours(x, y, TileOutside, TileWall) == 0 && r < chestChance {
+				} else if m.neighbours(x, y, TileOutside, TileWall) == 0 && r < Conf.ChestChance {
 					m.Set(x, y, &ChestTile{
 						Open: false,
 					})
@@ -74,7 +68,7 @@ func (m *Map) Postprocess() {
 		}
 	}
 
-	for i := 0; i < numMerchants; i++ {
+	for i := 0; i < Conf.NumMerchants; i++ {
 		for {
 			tx, ty := rand.Intn(m.Width()), rand.Intn(m.Height())
 			if m.At(tx, ty).Type() == TileFloor && m.neighbours(tx, ty, TileFloor) == 8 {

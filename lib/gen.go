@@ -13,23 +13,17 @@ import (
 )
 
 var (
-	width       = 48
-	height      = 48
-	gridSpacing = 8
-
-	roadWidth                  = 2.0
-	roomRadius                 = 3.0
-	roomRadiusVariance         = 0.0
-	nodeChance                 = 0.8
-	roomProbabilityCoefficient = -0.9
-
 	roadColour = color.Black
 	roomColour = color.Black
 
-	threadCount = 4
-	jobs        = make(chan job, threadCount)
-	jobResults  = make(chan jobResult, threadCount)
+	jobs       chan job
+	jobResults chan jobResult
 )
+
+func init() {
+	jobs = make(chan job, Conf.NumThreads)
+	jobResults = make(chan jobResult, Conf.NumThreads)
+}
 
 // DecodeImageIntoMap takes an image.Image object and converts its
 // pixels into the tiles in a Map.
@@ -97,7 +91,7 @@ type jobResult struct {
 
 // SpawnWorkers spawns a bunch of worker goroutines to speed up Prim's algorithm
 func SpawnWorkers() {
-	for i := 0; i < threadCount; i++ {
+	for i := 0; i < Conf.NumThreads; i++ {
 		go worker()
 	}
 }
@@ -151,9 +145,9 @@ func worker() {
 // aggregateJobResults waits until there are enough jobResults in the jobResults
 // channel then takes them all and finds the minimum edge in the *entire* graph.
 func aggregateJobResults() *edge {
-	results := make([]jobResult, threadCount)
+	results := make([]jobResult, Conf.NumThreads)
 
-	for i := 0; i < threadCount; i++ {
+	for i := 0; i < Conf.NumThreads; i++ {
 		results[i] = <-jobResults
 	}
 
@@ -176,9 +170,9 @@ func aggregateJobResults() *edge {
 // not quite -- it passes the entire graph to each job, but tells each worker
 // to only work between two bounds.
 func initiateJobs(graph [][]int, labelled, deleted []int) {
-	d := int(math.Floor(float64(len(graph)) / float64(threadCount)))
+	d := int(math.Floor(float64(len(graph)) / float64(Conf.NumThreads)))
 
-	for i := 0; i < threadCount; i++ {
+	for i := 0; i < Conf.NumThreads; i++ {
 		start := i * d
 		end := start + d - 1
 
@@ -197,7 +191,7 @@ func MakeMap(depth int) *Map {
 	rand.Seed(time.Now().UnixNano())
 
 	var (
-		img = image.NewRGBA(image.Rect(0, 0, width, height))
+		img = image.NewRGBA(image.Rect(0, 0, Conf.MapWidth, Conf.MapHeight))
 		gc  = draw2dimg.NewGraphicContext(img)
 
 		points = generatePoints()
@@ -220,7 +214,7 @@ func MakeMap(depth int) *Map {
 		}
 	}
 	gc.SetLineCap(draw2d.RoundCap)
-	gc.SetLineWidth(roadWidth)
+	gc.SetLineWidth(float64(Conf.RoadWidth))
 	gc.SetStrokeColor(roadColour)
 	gc.Close()
 	gc.Stroke()
@@ -235,11 +229,11 @@ func MakeMap(depth int) *Map {
 				)
 
 				gc.MoveTo(float64(to.X), float64(to.Y))
-				draw2dkit.Circle(gc, float64(to.X), float64(to.Y), roadWidth/2)
+				draw2dkit.Circle(gc, float64(to.X), float64(to.Y), float64(Conf.RoadWidth)/2)
 				gc.Fill()
 
 				gc.MoveTo(float64(from.X), float64(from.Y))
-				draw2dkit.Circle(gc, float64(from.X), float64(from.Y), roadWidth/2)
+				draw2dkit.Circle(gc, float64(from.X), float64(from.Y), float64(Conf.RoadWidth)/2)
 				gc.Fill()
 			}
 		}
@@ -253,7 +247,7 @@ func MakeMap(depth int) *Map {
 		)
 
 		if rand.Float64() <= roomProbability(conn-1) {
-			radius := roomRadius + (rand.Float64()-0.5)*roomRadiusVariance
+			radius := float64(Conf.RoomWidth) + (rand.Float64()-0.5)*Conf.RoomWidthVariance
 			square(gc, point, radius)
 		}
 	}
@@ -277,9 +271,9 @@ func square(gc draw2d.PathBuilder, center image.Point, radius float64) {
 func generatePoints() []image.Point {
 	points := []image.Point{}
 
-	for i := gridSpacing; i < width; i += gridSpacing {
-		for j := gridSpacing; j < height; j += gridSpacing {
-			if rand.Float64() < nodeChance {
+	for i := Conf.GridSpacing; i < Conf.MapWidth; i += Conf.GridSpacing {
+		for j := Conf.GridSpacing; j < Conf.MapHeight; j += Conf.GridSpacing {
+			if rand.Float64() < Conf.NodeChance {
 				points = append(points, image.Point{
 					X: i,
 					Y: j,
@@ -377,7 +371,7 @@ func numConnected(graph [][]bool, index int) int {
 }
 
 func roomProbability(n int) float64 {
-	return math.Exp(roomProbabilityCoefficient * float64(n))
+	return math.Exp(Conf.RoomProbabilityCoefficient * float64(n))
 }
 
 func contains(set []int, i int) bool {

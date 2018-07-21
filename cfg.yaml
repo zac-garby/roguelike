@@ -1,0 +1,35 @@
+# the size, in tiles, of the map
+map-width: 48
+map-height: 48
+
+# the potential distance between adjacent rooms
+grid-spacing: 8
+
+# the diameter of the paths between rooms
+road-width: 2
+
+# the radius of each room
+room-radius: 3
+
+# how much the room radius can vary
+room-radius-variance: 0
+
+# the chance that a node is placed at a point
+node-chance: 0.8
+
+# the probability that a room is placed is calculated
+# by exp(room-prob-coefficient * n) where n is the
+# number of neighbouring nodes
+room-prob-coefficient: -0.9
+
+# the number of threads to use when generating the map
+num-threads: 4
+
+# the chance that a box is placed next to a wall
+box-chance: 0.035
+
+# the chance that a chest is placed on the floor
+chest-chance: 0.03
+
+# the number of merchants to generate per level
+num-merchants: 3
